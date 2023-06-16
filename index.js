@@ -18,7 +18,7 @@ DbConnection();
 const PORT = process.env.PORT || 5000
 
 app.use(cors({
-    origin:['http://localhost:3000','https://astounding-cheesecake-da2d0e.netlify.app'],
+    origin:'https://skillascent.netlify.app',
     credentials:true,
 }));
 
