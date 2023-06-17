@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 5000
 
 app.use(cors({
     // origin:'https://skillascent.netlify.app',
-    origin:'https://skillascent.onrender.com',
+    origin:'https://www.skillascent.in',
     credentials:true,
 }));
 
