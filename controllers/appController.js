@@ -94,8 +94,8 @@ const getCourses = async (req, res) => {
         if (getLoggedData === undefined) {
             return res.status(200).send({ loggedUser: "undefined",courseList: courseList });
         } else {
-            res.cookie('satoken', getLoggedData.accessToken, cookieOption1);
-            res.cookie('sareftoken', getLoggedData.refreshToken, cookieOption2);
+            // res.cookie('satoken', getLoggedData.accessToken, cookieOption1);
+            // res.cookie('sareftoken', getLoggedData.refreshToken, cookieOption2);
             res.status(200).send({ loggedUser: getLoggedData.loggedUser,courseList: courseList });
         }
     } catch (error) {
