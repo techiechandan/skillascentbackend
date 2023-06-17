@@ -18,7 +18,8 @@ DbConnection();
 const PORT = process.env.PORT || 5000
 
 app.use(cors({
-    origin:'https://skillascent.netlify.app',
+    // origin:'https://skillascent.netlify.app',
+    origin:'https://skillascent.onrender.com',
     credentials:true,
 }));
 

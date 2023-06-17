@@ -2,6 +2,16 @@ const tokens = require('../model/tokenModel');
 const users = require('../model/userModel');
 const utils = require('../utils/tokenUtil');
 
+const cookieOption1 = {
+    maxAge:Date.now()+60*60*1000, 
+    httpOnly: true,  
+}
+
+const cookieOption2 = {
+    maxAge:Date.now()+30*24*60*60*1000, 
+    httpOnly: true,
+}
+
 const userAuth = async (req, res, next) => {
     try {
         if(req.cookies.satoken && req.cookies.sareftoken){
