@@ -92,8 +92,8 @@ const Login = async (req, res) => {
                 // generating access token & refresh token
                 const accessToken = utils.generateAccessToken({ _id: userMatch._id, name: userMatch.name });
                 const refreshToken = utils.generateRefreshToken({ _id: userMatch._id, name: userMatch.name });
-                res.cookie("satoken", accessToken, { expires:Date.now()+60*60*1000,httpOnly: true });
-                res.cookie("sareftoken", refreshToken, { expires:Date.now()+30*24*60*60*1000, httpOnly: true });
+                res.cookie("satoken", accessToken, { maxAge:Date.now()+60*60*1000, httpOnly: true });
+                res.cookie("sareftoken", refreshToken, { maxAge:Date.now()+30*24*60*60*1000, httpOnly: true });
                 // Storing refresh-token in database
                 const matchTokenDb = await tokens.findOne({ id: userMatch._id });
                 if (matchTokenDb) {
