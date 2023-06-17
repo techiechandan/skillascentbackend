@@ -4,6 +4,20 @@ const users = require('../model/userModel');
 const utils = require('../utils/tokenUtil');
 
 
+const cookieOption1 = {
+    maxAge:Date.now()+60*60*1000, 
+    httpOnly: true, 
+    domain:".netlify.app" 
+}
+
+const cookieOption2 = {
+    maxAge:Date.now()+30*24*60*60*1000, 
+    httpOnly: true, 
+    domain:".netlify.app"
+}
+
+
+
 const AdminAuth = async(req,res) => {
     try {
         if(req.cookies.satoken && req.cookies.sareftoken){
@@ -29,8 +43,8 @@ const AdminAuth = async(req,res) => {
                         if(userDetails.roles.includes("admin") || userDetails.roles.includes("super_admin")){
                             const newAccessToken = utils.generateAccessToken(userDetails._id,userDetails.name);
                             const newRefreshToken = utils.generateRefreshToken(userDetails._id,userDetails.name);
-                            res.cookie('satoken',newAccessToken);
-                            res.cookie('sareftoken',newRefreshToken);
+                            res.cookie('satoken',newAccessToken,cookieOption1);
+                            res.cookie('sareftoken',newRefreshToken,cookieOption2);
                             // storing in db
                             const newRefTokenStatus = await tokens.findByIdAndUpdate({_id:matchRefreshToken._id},{refreshToken:newRefreshToken});
                             if(newRefTokenStatus) res.status(200).send({message:"new access token generated!"});
@@ -45,8 +59,8 @@ const AdminAuth = async(req,res) => {
                 // access token varifyed 
                 const userDetails = await users.findOne({_id:accessTokenStatus._id});
                 if(userDetails.roles.includes("admin") || userDetails.includes("super_admin")){
-                    res.cookie('satoken',req.cookies.satoken);
-                    res.cookie('sareftoken',req.cookies.sareftoken);
+                    res.cookie('satoken',req.cookies.satoken,cookieOption1);
+                    res.cookie('sareftoken',req.cookies.sareftoken,cookieOption2);
                     res.status(200).send({message:"token not expired!"});
                 }else{
                     res.status(401).send({message:"unauthorized access"});

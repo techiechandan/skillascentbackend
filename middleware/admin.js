@@ -2,7 +2,17 @@ const users = require('../model/userModel');
 const tokens = require('../model/tokenModel');
 const utils = require('../utils/tokenUtil');
 
+const cookieOption1 = {
+    maxAge:Date.now()+60*60*1000, 
+    httpOnly: true, 
+    domain:".netlify.app" 
+}
 
+const cookieOption2 = {
+    maxAge:Date.now()+30*24*60*60*1000, 
+    httpOnly: true, 
+    domain:".netlify.app"
+}
 
 
 const adminAuth = async (req, res, next) => {
@@ -14,8 +24,8 @@ const adminAuth = async (req, res, next) => {
             if (varifyedAccessToken !== 403) {
                 const userDetails = await users.findOne({ _id: varifyedAccessToken._id });
                 if (userDetails.roles.includes("admin") || userDetails.roles.includes("super_admin")) {
-                    res.cookie("satoken", req.cookies.satoken, { httpOnly: true, });
-                    res.cookie("sareftoken", req.cookies.sareftoken, { httpOnly: true, });
+                    res.cookie("satoken", req.cookies.satoken, cookieOption1);
+                    res.cookie("sareftoken", req.cookies.sareftoken, cookieOption2);
                     next();
                 } else {
                     res.status(401).send({ message: "please enter valid email or password" });
@@ -31,8 +41,8 @@ const adminAuth = async (req, res, next) => {
                         if (userDetails.roles.includes("admin") || userDetails.roles.includes("super_admin")) {
                             const newAccessToken = utils.generateAccessToken({_id:userDetails._id, name:userDetails.name});
                             const newRefreshToken = utils.generateRefreshToken({_id:userDetails._id, name:userDetails.name});
-                            res.cookie("satoken", newAccessToken, { httpOnly: true });
-                            res.cookie("sareftoken", newRefreshToken, { httpOnly: true });
+                            res.cookie("satoken", newAccessToken, cookieOption1);
+                            res.cookie("sareftoken", newRefreshToken, cookieOption2);
                             const newRefTokeStatus = await tokens.findByIdAndUpdate({_id:matchRefreshToken._id},{id:userDetails.id,refreshToken:newRefreshToken});
                             if(newRefTokeStatus) next();
                         }else{
@@ -41,8 +51,8 @@ const adminAuth = async (req, res, next) => {
                     }else if(varifyedAccessToken === 403){
                         // refresh token expired
                         await tokens.findByIdAndRemove({_id:matchRefreshToken._id});
-                        res.cookie("satoken",undefined,{httpOnly:true});
-                        res.cookie("sareftoken",undefined,{httpOnly:true});
+                        res.cookie("satoken",undefined,cookieOption1);
+                        res.cookie("sareftoken",undefined,cookieOption2);
                         res.status(401).send({ message:"Access denied! refreshtoken expired"});
                     }else{
                         res.status(401).send({message:"Access denied! invalid refreshtoken1"});

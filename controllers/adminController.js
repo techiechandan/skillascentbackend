@@ -9,6 +9,24 @@ const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const QueryModel = require('../model/QueryModel');
 const SiteModel = require('../model/SiteModel');
+
+
+const cookieOption1 = {
+    maxAge:Date.now()+60*60*1000, 
+    httpOnly: true, 
+    domain:".netlify.app" 
+}
+
+const cookieOption2 = {
+    maxAge:Date.now()+30*24*60*60*1000, 
+    httpOnly: true, 
+    domain:".netlify.app"
+}
+
+
+
+
+
 const Login = async (req, res) => {
     try {
         const matchUser = await usersModel.findOne({ email: req.body.email });
@@ -19,8 +37,8 @@ const Login = async (req, res) => {
                     // generating access token and refresh token
                     const newAccessToken = utils.generateAccessToken(matchUser._id, matchUser.name);
                     const newRefreshToken = utils.generateRefreshToken(matchUser._id, matchUser.name);
-                    res.cookie("satoken",newAccessToken,{httpOnly:true});
-                    res.cookie("sareftoken",newRefreshToken,{httpOnly:true});
+                    res.cookie("satoken",newAccessToken,cookieOption1);
+                    res.cookie("sareftoken",newRefreshToken,cookieOption2);
                     // removing previouse stored token from db
                     const matchToken = await tokenModel.findOne({id:matchUser._id});
                     if(matchToken) await tokenModel.findByIdAndRemove({_id:matchToken._id});

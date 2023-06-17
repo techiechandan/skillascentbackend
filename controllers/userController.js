@@ -11,7 +11,17 @@ const utils = require('../utils/tokenUtil');
 
 const userAuth = require('../auth/userAuth')
 
+const cookieOption1 = {
+    maxAge:Date.now()+60*60*1000, 
+    httpOnly: true, 
+    domain:".netlify.app" 
+}
 
+const cookieOption2 = {
+    maxAge:Date.now()+30*24*60*60*1000, 
+    httpOnly: true, 
+    domain:".netlify.app"
+}
 
 const getRegister = async (req, res) => {
     try {
@@ -92,8 +102,8 @@ const Login = async (req, res) => {
                 // generating access token & refresh token
                 const accessToken = utils.generateAccessToken({ _id: userMatch._id, name: userMatch.name });
                 const refreshToken = utils.generateRefreshToken({ _id: userMatch._id, name: userMatch.name });
-                res.cookie("satoken", accessToken, { maxAge:Date.now()+60*60*1000, httpOnly: true });
-                res.cookie("sareftoken", refreshToken, { maxAge:Date.now()+30*24*60*60*1000, httpOnly: true });
+                res.cookie("satoken", accessToken, cookieOption1);
+                res.cookie("sareftoken", refreshToken, cookieOption2);
                 // Storing refresh-token in database
                 const matchTokenDb = await tokens.findOne({ id: userMatch._id });
                 if (matchTokenDb) {
@@ -145,8 +155,8 @@ const getChangePassword = async (req, res) => {
         if (getLoggedData === undefined) {
             return res.status(200).send({ loggedUser: "undefined" });
         } else {
-            res.cookie('satoken', getLoggedData.accessToken, { httpOnly: true });
-            res.cookie('sareftoken', getLoggedData.refreshToken, { httpOnly: true });
+            res.cookie('satoken', getLoggedData.accessToken, cookieOption1);
+            res.cookie('sareftoken', getLoggedData.refreshToken, cookieOption2);
             res.status(200).send({ loggedUser: getLoggedData.loggedUser });
         }
     } catch (error) {
@@ -185,8 +195,8 @@ const getResetPassword = async (req, res) => {
         if (getLoggedData === undefined) {
             return res.status(200).send({ loggedUser: "undefined" });
         } else {
-            res.cookie('satoken', getLoggedData.accessToken, { httpOnly: true });
-            res.cookie('sareftoken', getLoggedData.refreshToken, { httpOnly: true });
+            res.cookie('satoken', getLoggedData.accessToken, cookieOption1);
+            res.cookie('sareftoken', getLoggedData.refreshToken, cookieOption2);
             res.status(200).send({ loggedUser: getLoggedData.loggedUser });
         }
     } catch (error) {
@@ -258,8 +268,8 @@ const getSetNewPassword = async (req, res) => {
             }
             return res.status(200).send({ loggedUser: "undefined" });
         } else {
-            res.cookie('satoken', getLoggedData.accessToken, { httpOnly: true });
-            res.cookie('sareftoken', getLoggedData.refreshToken, { httpOnly: true });
+            res.cookie('satoken', getLoggedData.accessToken, cookieOption1);
+            res.cookie('sareftoken', getLoggedData.refreshToken, cookieOption2);
             return res.status(200).send({ loggedUser: getLoggedData.loggedUser });
         }
     } catch (error) {
@@ -285,8 +295,8 @@ const SetNewPassword = async (req, res) => {
             await queryTokens.findByIdAndRemove({_id:matchQueryToken._id});
             return res.status(200).send({ loggedUser: "undefined"});
         } else {
-            res.cookie('satoken', getLoggedData.accessToken, { httpOnly: true });
-            res.cookie('sareftoken', getLoggedData.refreshToken, { httpOnly: true });
+            res.cookie('satoken', getLoggedData.accessToken, cookieOption1);
+            res.cookie('sareftoken', getLoggedData.refreshToken, cookieOption2);
             return res.status(200).send({ loggedUser: getLoggedData.loggedUser });
         }
     } catch (error) {

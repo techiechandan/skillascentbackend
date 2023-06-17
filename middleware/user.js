@@ -22,12 +22,12 @@ const userAuth = async (req, res, next) => {
                         // req.cookie('sareftoken',newRefreshToken);
                     }else{
                         await tokens.findByIdAndRemove({_id:matchRefToken._id});
-                        req.cookie('satoken',undefined);
-                        req.cookie('sareftoken',undefined);
+                        req.cookie('satoken',undefined,cookieOption1);
+                        req.cookie('sareftoken',undefined,cookieOption2);
                     }
                 }else{
-                    req.cookie('satoken',undefined);
-                    req.cookie('sareftoken',undefined);
+                    req.cookie('satoken',undefined,cookieOption1);
+                    req.cookie('sareftoken',undefined,cookieOption2);
                 }
                 
             }
