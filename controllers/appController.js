@@ -7,7 +7,7 @@ const SiteModel = require('../model/SiteModel');
 const cookieOption1 = {
     maxAge:Date.now()+60*60*1000, 
     httpOnly: true,
-    domain: ".onrender.com",
+    domain: "skillascent.in",
     sameSite: "none",
     secure:true,
 }
@@ -15,7 +15,7 @@ const cookieOption1 = {
 const cookieOption2 = {
     maxAge:Date.now()+30*24*60*60*1000, 
     httpOnly: true,
-    domain: ".onrender.com",
+    domain: "skillascent.in",
     sameSite: "none",
     secure:true,
 }
@@ -28,9 +28,11 @@ const getHome = async (req, res) => {
         // sending response
         const getLoggedData = await userAuth.userAuth(req, res);
         if (getLoggedData === undefined) {
-            return res.status(200).send({ loggedUser: "undefined", accessToken:'undefined', refreshToken:'undefined' });
+            return res.status(200).send({ loggedUser: "undefined" });
         } else {
-            res.status(200).send({ loggedUser: getLoggedData.loggedUser, accessToken:getLoggedData.accessToken, refreshToken:getLoggedData.refreshToken});
+            res.cookie('satoken', getLoggedData.accessToken, cookieOption1);
+            res.cookie('sareftoken', getLoggedData.refreshToken, cookieOption2);
+            res.status(200).send({ loggedUser: getLoggedData.loggedUser});
         }
     } catch (error) {
         console.log(error);
@@ -47,7 +49,9 @@ const getAbout = async (req, res) => {
         if (getLoggedData === undefined) {
             return res.status(200).send({ loggedUser: "undefined" });
         } else {
-            res.status(200).send({ loggedUser: getLoggedData.loggedUser,accessToken:getLoggedData.accessToken, refreshToken:getLoggedData.refreshToken });
+            res.cookie('satoken', getLoggedData.accessToken, cookieOption1);
+            res.cookie('sareftoken', getLoggedData.refreshToken, cookieOption2);
+            res.status(200).send({ loggedUser: getLoggedData.loggedUser });
         }
     } catch (error) {
         console.log(error);
@@ -94,8 +98,8 @@ const getCourses = async (req, res) => {
         if (getLoggedData === undefined) {
             return res.status(200).send({ loggedUser: "undefined",courseList: courseList });
         } else {
-            // res.cookie('satoken', getLoggedData.accessToken, cookieOption1);
-            // res.cookie('sareftoken', getLoggedData.refreshToken, cookieOption2);
+            res.cookie('satoken', getLoggedData.accessToken, cookieOption1);
+            res.cookie('sareftoken', getLoggedData.refreshToken, cookieOption2);
             res.status(200).send({ loggedUser: getLoggedData.loggedUser,courseList: courseList });
         }
     } catch (error) {

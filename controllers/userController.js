@@ -14,7 +14,7 @@ const userAuth = require('../auth/userAuth')
 const cookieOption1 = {
     maxAge:Date.now()+60*60*1000, 
     httpOnly: true,
-    domain: ".onrender.com",
+    domain: "skillascent.in",
     sameSite: "none",
     secure:true,
 }
@@ -22,7 +22,7 @@ const cookieOption1 = {
 const cookieOption2 = {
     maxAge:Date.now()+30*24*60*60*1000, 
     httpOnly: true,
-    domain: ".onrender.com",
+    domain: "skillascent.in",
     sameSite: "none",
     secure:true,
 }
@@ -51,7 +51,9 @@ const getLogin = async (req, res) => {
         if (getLoggedData === undefined) {
             return res.status(200).send({ loggedUser: "undefined", accessToken:"undefined", refreshToken:"undefined" });
         } else {
-            return res.status(200).send({ loggedUser: getLoggedData.loggedUser, accessToken:getLoggedData.accessToken, refreshToken:getLoggedData.refreshToken });
+            res.cookie('satoken', getLoggedData.accessToken, cookieOption1);
+            res.cookie('sareftoken', getLoggedData.refreshToken, cookieOption2);
+            return res.status(200).send({ loggedUser: getLoggedData.loggedUser });
         }
     } catch (error) {
         console.log(error);
@@ -104,8 +106,8 @@ const Login = async (req, res) => {
                 // generating access token & refresh token
                 const accessToken = utils.generateAccessToken({ _id: userMatch._id, name: userMatch.name });
                 const refreshToken = utils.generateRefreshToken({ _id: userMatch._id, name: userMatch.name });
-                // res.cookie("satoken", accessToken, cookieOption1);
-                // res.cookie("sareftoken", refreshToken, cookieOption2);
+                res.cookie("satoken", accessToken, cookieOption1);
+                res.cookie("sareftoken", refreshToken, cookieOption2);
                 
                 // Storing refresh-token in database
                 const matchTokenDb = await tokens.findOne({ id: userMatch._id });
@@ -120,17 +122,17 @@ const Login = async (req, res) => {
                 if (!tokenStatus) {
                     throw new Error({ message: "Internal server error!" });
                 } else {
-                    res.status(200).send({ message: "Login successfully", loggedUser: userMatch.name,accessToken:accessToken, refreshToken:refreshToken });
+                    res.status(200).send({ message: "Login successfully", loggedUser: userMatch.name });
                 }
             } else {
-                res.status(403).send({ message: "Invalid Creadentials!",accessToken:'undefined', refreshToken:'undefined' });
+                res.status(403).send({ message: "Invalid Creadentials!" });
             }
         } else {
-            res.status(403).send({ message: "Invalid Creadentials!", accessToken:'undefined', refreshToken:'undefined' });
+            res.status(403).send({ message: "Invalid Creadentials!" });
         }
     } catch (error) {
         console.log(error.message);
-        return res.status(500).send({ message: "Internal Server Error!", accessToken:'undefined', refreshToken:'undefined' });
+        return res.status(500).send({ message: "Internal Server Error!" });
     }
 }
 
