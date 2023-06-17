@@ -7,16 +7,16 @@ const SiteModel = require('../model/SiteModel');
 const cookieOption1 = {
     maxAge:Date.now()+60*60*1000, 
     httpOnly: true,
-    domain: "skillascent.onrender.com",
-    sameSite: None,
+    domain: ".onrender.com",
+    sameSite: "none",
     secure:true,
 }
 
 const cookieOption2 = {
     maxAge:Date.now()+30*24*60*60*1000, 
     httpOnly: true,
-    domain: "skillascent.onrender.com",
-    sameSite: None,
+    domain: ".onrender.com",
+    sameSite: "none",
     secure:true,
 }
 
