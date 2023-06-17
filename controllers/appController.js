@@ -28,11 +28,9 @@ const getHome = async (req, res) => {
         // sending response
         const getLoggedData = await userAuth.userAuth(req, res);
         if (getLoggedData === undefined) {
-            return res.status(200).send({ loggedUser: "undefined" });
+            return res.status(200).send({ loggedUser: "undefined", accessToken:'undefined', refreshToken:'undefined' });
         } else {
-            res.cookie('satoken', getLoggedData.accessToken, cookieOption1);
-            res.cookie('sareftoken', getLoggedData.refreshToken, cookieOption2);
-            res.status(200).send({ loggedUser: getLoggedData.loggedUser });
+            res.status(200).send({ loggedUser: getLoggedData.loggedUser, accessToken:getLoggedData.accessToken, refreshToken:getLoggedData.refreshToken});
         }
     } catch (error) {
         console.log(error);
@@ -49,9 +47,7 @@ const getAbout = async (req, res) => {
         if (getLoggedData === undefined) {
             return res.status(200).send({ loggedUser: "undefined" });
         } else {
-            res.cookie('satoken', getLoggedData.accessToken, cookieOption1);
-            res.cookie('sareftoken', getLoggedData.refreshToken, cookieOption2);
-            res.status(200).send({ loggedUser: getLoggedData.loggedUser });
+            res.status(200).send({ loggedUser: getLoggedData.loggedUser,accessToken:getLoggedData.accessToken, refreshToken:getLoggedData.refreshToken });
         }
     } catch (error) {
         console.log(error);

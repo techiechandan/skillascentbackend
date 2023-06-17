@@ -49,11 +49,9 @@ const getLogin = async (req, res) => {
     try {
         const getLoggedData = await userAuth.userAuth(req, res);
         if (getLoggedData === undefined) {
-            return res.status(200).send({ loggedUser: "undefined" });
+            return res.status(200).send({ loggedUser: "undefined", accessToken:"undefined", refreshToken:"undefined" });
         } else {
-            res.cookie('satoken', getLoggedData.accessToken, { httpOnly: true });
-            res.cookie('sareftoken', getLoggedData.refreshToken, { httpOnly: true });
-            res.status(200).send({ loggedUser: getLoggedData.loggedUser });
+            return res.status(200).send({ loggedUser: getLoggedData.loggedUser, accessToken:getLoggedData.accessToken, refreshToken:getLoggedData.refreshToken });
         }
     } catch (error) {
         console.log(error);
@@ -108,6 +106,7 @@ const Login = async (req, res) => {
                 const refreshToken = utils.generateRefreshToken({ _id: userMatch._id, name: userMatch.name });
                 res.cookie("satoken", accessToken, cookieOption1);
                 res.cookie("sareftoken", refreshToken, cookieOption2);
+                
                 // Storing refresh-token in database
                 const matchTokenDb = await tokens.findOne({ id: userMatch._id });
                 if (matchTokenDb) {
@@ -121,17 +120,17 @@ const Login = async (req, res) => {
                 if (!tokenStatus) {
                     throw new Error({ message: "Internal server error!" });
                 } else {
-                    res.status(200).send({ message: "Login successfully", loggedUser: userMatch.name });
+                    res.status(200).send({ message: "Login successfully", loggedUser: userMatch.name,accessToken:accessToken, refreshToken:refreshToken });
                 }
             } else {
-                res.status(403).send({ message: "Invalid Creadentials!" });
+                res.status(403).send({ message: "Invalid Creadentials!",accessToken:'undefined', refreshToken:'undefined' });
             }
         } else {
-            res.status(403).send({ message: "Invalid Creadentials!" });
+            res.status(403).send({ message: "Invalid Creadentials!", accessToken:'undefined', refreshToken:'undefined' });
         }
     } catch (error) {
         console.log(error.message);
-        return res.status(500).send({ message: "Internal Server Error!" });
+        return res.status(500).send({ message: "Internal Server Error!", accessToken:'undefined', refreshToken:'undefined' });
     }
 }
 
