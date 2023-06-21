@@ -2,23 +2,7 @@ const tokens = require('../model/tokenModel')
 const users = require('../model/userModel');
 // utils methods
 const utils = require('../utils/tokenUtil');
-
-
-const cookieOption1 = {
-    maxAge:Date.now()+60*60*1000, 
-    httpOnly: true, 
-    domain: "skillascent.in",
-    sameSite: "none",
-    secure:true, 
-}
-
-const cookieOption2 = {
-    maxAge:Date.now()+30*24*60*60*1000, 
-    httpOnly: true,
-    domain: "skillascent.in",
-    sameSite: "none",
-    secure:true,
-}
+const cookiesOption= require('../utils/cookiesOption');
 
 
 
@@ -47,8 +31,8 @@ const AdminAuth = async(req,res) => {
                         if(userDetails.roles.includes("admin") || userDetails.roles.includes("super_admin")){
                             const newAccessToken = utils.generateAccessToken(userDetails._id,userDetails.name);
                             const newRefreshToken = utils.generateRefreshToken(userDetails._id,userDetails.name);
-                            res.cookie('satoken',newAccessToken,cookieOption1);
-                            res.cookie('sareftoken',newRefreshToken,cookieOption2);
+                            res.cookie('satoken',newAccessToken,cookiesOption.cookieOption1);
+                            res.cookie('sareftoken',newRefreshToken,cookiesOption.cookieOption2);
                             // storing in db
                             const newRefTokenStatus = await tokens.findByIdAndUpdate({_id:matchRefreshToken._id},{refreshToken:newRefreshToken});
                             if(newRefTokenStatus) res.status(200).send({message:"new access token generated!"});
@@ -63,8 +47,8 @@ const AdminAuth = async(req,res) => {
                 // access token varifyed 
                 const userDetails = await users.findOne({_id:accessTokenStatus._id});
                 if(userDetails.roles.includes("admin") || userDetails.includes("super_admin")){
-                    res.cookie('satoken',req.cookies.satoken,cookieOption1);
-                    res.cookie('sareftoken',req.cookies.sareftoken,cookieOption2);
+                    res.cookie('satoken',req.cookies.satoken,cookiesOption.cookieOption1);
+                    res.cookie('sareftoken',req.cookies.sareftoken,cookiesOption.cookieOption2);
                     res.status(200).send({message:"token not expired!"});
                 }else{
                     res.status(401).send({message:"unauthorized access"});

@@ -28,7 +28,8 @@ router.get('/disclamer/api',middleware.adminAuth,adminController.getDisclamer);
 router.get('/privacy-policy/api',middleware.adminAuth,adminController.getPrivacyPolicy);
 router.post('/update/policy/api',middleware.adminAuth,adminController.setPrivacyPolicy);
 router.post('/update/disclamer/api',middleware.adminAuth,adminController.setDisclamer);
-
+router.post('/update/users/deatils/api',middleware.adminAuth,adminController.updateUsers);
+router.delete('/user/delete/:userId/api',middleware.adminAuth,adminController.deleteUser);
 
 
 module.exports = router;

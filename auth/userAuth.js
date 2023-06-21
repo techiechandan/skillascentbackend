@@ -31,8 +31,6 @@ const userAuth = async (req, res) => {
         console.log(error);
     }
 }
-
-
 module.exports = {
     userAuth,
 }

@@ -10,25 +10,7 @@ const nodemailer = require('nodemailer');
 const QueryModel = require('../model/QueryModel');
 const SiteModel = require('../model/SiteModel');
 
-
-const cookieOption1 = {
-    maxAge:Date.now()+60*60*1000, 
-    httpOnly: true,
-    domain: "skillascent.in",
-    sameSite: "none",
-    secure:true,
-}
-
-const cookieOption2 = {
-    maxAge:Date.now()+30*24*60*60*1000, 
-    httpOnly: true,
-    domain: "skillascent.in",
-    sameSite: "none",
-    secure:true,
-}
-
-
-
+const cookieOption = require('../utils/CookiesOption')
 
 
 const Login = async (req, res) => {
@@ -41,8 +23,8 @@ const Login = async (req, res) => {
                     // generating access token and refresh token
                     const newAccessToken = utils.generateAccessToken(matchUser._id, matchUser.name);
                     const newRefreshToken = utils.generateRefreshToken(matchUser._id, matchUser.name);
-                    res.cookie("satoken",newAccessToken,cookieOption1);
-                    res.cookie("sareftoken",newRefreshToken,cookieOption2);
+                    res.cookie("satoken",newAccessToken,cookieOption.cookieOption1);
+                    res.cookie("sareftoken",newRefreshToken,cookieOption.cookieOption2);
                     // removing previouse stored token from db
                     const matchToken = await tokenModel.findOne({id:matchUser._id});
                     if(matchToken) await tokenModel.findByIdAndRemove({_id:matchToken._id});
@@ -146,7 +128,6 @@ const getContentToUpdate = async(req, res) => {
 
 const AddCourse = async(req,res) => {
     try {
-        // console.log(req.body);
         const response = await new CourseModel(req.body).save();
         if(response){ res.status(200).send({message:"Course Added Succussfuly!"})}
         else{res.status(500).send("Internal Server Error")}
@@ -261,8 +242,7 @@ const UpdateCourse = async(req, res) => {
 const getQueries = async(req, res) => {
     try {
         const queries = await queryModel.find();
-        // console.log(queries);
-        if(!queries){
+        if(queries.length === 0){
             return res.status(404).send({message:"Queries not found!",queries:"undefined"});
         }
         return res.status(200).send({queries:queries});
@@ -288,13 +268,9 @@ const QueryReply = async(req, res) => {
                 pass: process.env.password
             }
         });
-
         const getAdmin  = utils.verifyRefreshToken(req.cookies.sareftoken,process.env.REFRESH_SECRET_KEY);
         // store replies in db with replied by - name, id
-        
         setReplyStatus = await QueryModel.findByIdAndUpdate({_id:req.body.id},{$push:{replies:{senderId:getAdmin._id,senderName:getAdmin.name,reply:req.body.message}}});
-
-        console.log(req.body.to);
         // if stored successfully then send mail
         const sendEmailStatus = await transporter.sendMail({
             from: `${process.env.email}`,
@@ -342,10 +318,10 @@ const deleteQuery = async(req, res)=>{
 const getPrivacyPolicy = async(req, res) => {
     try{
         const response = await SiteModel.find();
-        if(response){
+        if(response.length>0){
             return res.status(200).send({privacyData:response[0].privacyPolicy});
         }
-        return res.staus(200).send({privacyData:'undefined'});
+        return res.status(200).send({privacyData:'undefined'});
     }catch(error){
         return res.status(500).send({message:"Internal server error"});
     }
@@ -355,7 +331,7 @@ const getPrivacyPolicy = async(req, res) => {
 const getDisclamer = async(req,res)=>{
     try{
         const response = await SiteModel.find();
-        if(response){
+        if(response.length>0){
             return res.status(200).send({disclamerData:response[0].disclamer});
         }
         return res.status(200).send({disclamerData:'undefined'});
@@ -395,6 +371,48 @@ const setPrivacyPolicy = async(req, res) => {
 
 
 
+const updateUsers = async(req, res)=>{
+    try{
+        const updateStatus = await usersModel.findByIdAndUpdate({_id:req.body.id},{$set:{
+            name:req.body.name,
+            email:req.body.email,
+            course:req.body.course,
+            state:req.body.state,
+            city:req.body.city,
+            roles:req.body.roles,
+        }});
+        if(updateStatus){
+            return res.status(200).send({message:"User's details update successfully"});
+        }
+    }catch(error){
+        return res.status(500).send({message:"Internal server error"});
+    }
+}
+
+
+const deleteUser = async(req, res) => {
+    try{
+        let getAdmin;
+        const adminStatus = utils.verifyAccessToken(req.cookies.satoken,process.env.ACCESS_SECRET_KEY);
+         if(adminStatus && adminStatus !== 403){
+            getAdmin = await usersModel.findOne({_id:adminStatus._id});
+         }
+         if(getAdmin._id.toString() === req.params.userId){
+            return res.status(403).send({message:"This user can't be deleted right now!"});
+         }
+         if(getAdmin.roles.includes('super_admin')){
+            const deleteStatus =  await usersModel.findByIdAndDelete({_id:req.params.userId});
+            if(deleteStatus){
+                return res.status(200).send({message:"User deleted successfully!"});
+            }
+         }else{
+             return res.status(403).send({message:"Sorry, you are not allowed to access this"});
+         }
+    }catch(error){
+        return res.status(500).send({message:"Internal server error"});
+    }
+}
+
 module.exports = {
     Login,
     getDashboard,
@@ -417,5 +435,7 @@ module.exports = {
     getPrivacyPolicy,
     getDisclamer,
     setDisclamer,
-    setPrivacyPolicy
+    setPrivacyPolicy,
+    updateUsers,
+    deleteUser,
 }

@@ -8,24 +8,9 @@ const tokens = require('../model/tokenModel');
 const queryTokens = require('../model/QueryTokenModel');
 // utils methos
 const utils = require('../utils/tokenUtil');
-
+const cookiesOption = require('../utils/cookiesOption');
 const userAuth = require('../auth/userAuth')
 
-const cookieOption1 = {
-    maxAge:Date.now()+60*60*1000, 
-    httpOnly: true,
-    domain: "skillascent.in",
-    sameSite: "none",
-    secure:true,
-}
-
-const cookieOption2 = {
-    maxAge:Date.now()+30*24*60*60*1000, 
-    httpOnly: true,
-    domain: "skillascent.in",
-    sameSite: "none",
-    secure:true,
-}
 
 const getRegister = async (req, res) => {
     try {
@@ -34,8 +19,8 @@ const getRegister = async (req, res) => {
         if (getLoggedData === undefined) {
             return res.status(200).send({ loggedUser: "undefined" });
         } else {
-            res.cookie('satoken', getLoggedData.accessToken, { httpOnly: true });
-            res.cookie('sareftoken', getLoggedData.refreshToken, { httpOnly: true });
+            res.cookie('satoken', getLoggedData.accessToken, cookiesOption.cookieOption1);
+            res.cookie('sareftoken', getLoggedData.refreshToken, cookiesOption.cookieOption2);
             res.status(200).send({ loggedUser: getLoggedData.loggedUser });
         }
     } catch (error) {
@@ -51,8 +36,8 @@ const getLogin = async (req, res) => {
         if (getLoggedData === undefined) {
             return res.status(200).send({ loggedUser: "undefined", accessToken:"undefined", refreshToken:"undefined" });
         } else {
-            res.cookie('satoken', getLoggedData.accessToken, cookieOption1);
-            res.cookie('sareftoken', getLoggedData.refreshToken, cookieOption2);
+            res.cookie('satoken', getLoggedData.accessToken, cookiesOption.cookieOption1);
+            res.cookie('sareftoken', getLoggedData.refreshToken, cookiesOption.cookieOption2);
             return res.status(200).send({ loggedUser: getLoggedData.loggedUser });
         }
     } catch (error) {
@@ -106,8 +91,8 @@ const Login = async (req, res) => {
                 // generating access token & refresh token
                 const accessToken = utils.generateAccessToken({ _id: userMatch._id, name: userMatch.name });
                 const refreshToken = utils.generateRefreshToken({ _id: userMatch._id, name: userMatch.name });
-                res.cookie("satoken", accessToken, cookieOption1);
-                res.cookie("sareftoken", refreshToken, cookieOption2);
+                res.cookie("satoken", accessToken, cookiesOption.cookieOption1);
+                res.cookie("sareftoken", refreshToken, cookiesOption.cookieOption2);
                 
                 // Storing refresh-token in database
                 const matchTokenDb = await tokens.findOne({ id: userMatch._id });
@@ -160,8 +145,8 @@ const getChangePassword = async (req, res) => {
         if (getLoggedData === undefined) {
             return res.status(200).send({ loggedUser: "undefined" });
         } else {
-            res.cookie('satoken', getLoggedData.accessToken, cookieOption1);
-            res.cookie('sareftoken', getLoggedData.refreshToken, cookieOption2);
+            res.cookie('satoken', getLoggedData.accessToken, cookiesOption.cookieOption1);
+            res.cookie('sareftoken', getLoggedData.refreshToken, cookiesOption.cookieOption2);
             res.status(200).send({ loggedUser: getLoggedData.loggedUser });
         }
     } catch (error) {
@@ -200,8 +185,8 @@ const getResetPassword = async (req, res) => {
         if (getLoggedData === undefined) {
             return res.status(200).send({ loggedUser: "undefined" });
         } else {
-            res.cookie('satoken', getLoggedData.accessToken, cookieOption1);
-            res.cookie('sareftoken', getLoggedData.refreshToken, cookieOption2);
+            res.cookie('satoken', getLoggedData.accessToken, cookiesOption.cookieOption1);
+            res.cookie('sareftoken', getLoggedData.refreshToken, cookiesOption.cookieOption2);
             res.status(200).send({ loggedUser: getLoggedData.loggedUser });
         }
     } catch (error) {
@@ -214,6 +199,7 @@ const sendResetEmail = async (req, res) => {
     try {
         const userMatch = await users.findOne({ email: req.body.email });
         if (!userMatch) return res.status(404).send({ message: "Please provide valid email address" });
+        
         // sending password reset link over email
         const transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
@@ -228,6 +214,7 @@ const sendResetEmail = async (req, res) => {
 
         // generating a token to send in query which will be expired in next 5 minutes
         const token = jwt.sign({ _id: userMatch._id }, process.env.QUERY_TOKEN_SECRET_KEY, { expiresIn: 60 * 10 });
+        
         // checking for existing token
         const existingToken = await queryTokens.findOne({ userId: userMatch._id });
 
@@ -273,8 +260,8 @@ const getSetNewPassword = async (req, res) => {
             }
             return res.status(200).send({ loggedUser: "undefined" });
         } else {
-            res.cookie('satoken', getLoggedData.accessToken, cookieOption1);
-            res.cookie('sareftoken', getLoggedData.refreshToken, cookieOption2);
+            res.cookie('satoken', getLoggedData.accessToken, cookiesOption.cookieOption1);
+            res.cookie('sareftoken', getLoggedData.refreshToken, cookiesOption.cookieOption2);
             return res.status(200).send({ loggedUser: getLoggedData.loggedUser });
         }
     } catch (error) {
@@ -300,8 +287,8 @@ const SetNewPassword = async (req, res) => {
             await queryTokens.findByIdAndRemove({_id:matchQueryToken._id});
             return res.status(200).send({ loggedUser: "undefined"});
         } else {
-            res.cookie('satoken', getLoggedData.accessToken, cookieOption1);
-            res.cookie('sareftoken', getLoggedData.refreshToken, cookieOption2);
+            res.cookie('satoken', getLoggedData.accessToken, cookiesOption.cookieOption1);
+            res.cookie('sareftoken', getLoggedData.refreshToken, cookiesOption.cookieOption2);
             return res.status(200).send({ loggedUser: getLoggedData.loggedUser });
         }
     } catch (error) {
