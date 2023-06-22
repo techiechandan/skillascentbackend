@@ -18,13 +18,13 @@ const adminAuth = async (req, res, next) => {
                 } else {
                     res.status(401).send({ message: "please enter valid email or password" });
                 }
-            } else if (varifyedAccessToken === 403) {
+            }else if (varifyedAccessToken === 403) {
                 // matching refresh token
                 const matchRefreshToken = await tokens.findOne({refreshToken:req.cookies.sareftoken});
                 if (matchRefreshToken) {
                     // access token expired verifying refresh token
                     const varifyedRefreshToken = utils.verifyRefreshToken(req.cookies.sareftoken, process.env.REFRESH_SECRET_KEY);
-                    if (varifyedRefreshToken && varifyedRefreshToken !== 403) {
+                    if (varifyedRefreshToken !== undefined && varifyedRefreshToken !== 403) {
                         const userDetails = await users.findOne({ _id: varifyedRefreshToken._id });
                         if (userDetails.roles.includes("admin") || userDetails.roles.includes("super_admin")) {
                             const newAccessToken = utils.generateAccessToken({_id:userDetails._id, name:userDetails.name});
@@ -36,11 +36,11 @@ const adminAuth = async (req, res, next) => {
                         }else{
                             res.status(401).send({message:"Access denied! enter valide email and password"});
                         }
-                    }else if(varifyedAccessToken === 403){
+                    }else if(varifyedRefreshToken === 403){
                         // refresh token expired
                         await tokens.findByIdAndRemove({_id:matchRefreshToken._id});
-                        res.cookie("satoken",undefined,cookiesOption.cookieOption1);
-                        res.cookie("sareftoken",undefined,cookiesOption.cookieOption2);
+                        res.cookie("satoken",undefined);
+                        res.cookie("sareftoken",undefined);
                         res.status(401).send({ message:"Access denied! refreshtoken expired"});
                     }else{
                         res.status(401).send({message:"Access denied! invalid refreshtoken1"});
