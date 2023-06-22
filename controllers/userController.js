@@ -8,7 +8,7 @@ const tokens = require('../model/tokenModel');
 const queryTokens = require('../model/QueryTokenModel');
 // utils methos
 const utils = require('../utils/tokenUtil');
-const cookiesOption = require('../utils/cookiesOption');
+const cookiesOption = require('../utils/CookiesOption');
 const userAuth = require('../auth/userAuth')
 
 
