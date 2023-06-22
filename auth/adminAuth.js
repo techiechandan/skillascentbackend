@@ -2,7 +2,7 @@ const tokens = require('../model/tokenModel')
 const users = require('../model/userModel');
 // utils methods
 const utils = require('../utils/tokenUtil');
-const cookiesOption= require('../utils/cookiesOption');
+const cookiesOption= require('../utils/CookiesOption');
 
 
 
