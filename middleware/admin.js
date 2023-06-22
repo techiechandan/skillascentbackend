@@ -1,7 +1,7 @@
 const users = require('../model/userModel');
 const tokens = require('../model/tokenModel');
 const utils = require('../utils/tokenUtil');
-const cookiesOption = require('../utils/cookiesOption');
+const cookiesOption = require('../utils/CookiesOption');
 
 const adminAuth = async (req, res, next) => {
     try {
