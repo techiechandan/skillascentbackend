@@ -235,7 +235,7 @@ const sendResetEmail = async (req, res) => {
             from: `${process.env.email}`,
             to: `${userMatch.email}`,
             subject: "Reset Password",
-            html: `<p>Hi ${userMatch.name}, <br><br>Have you requested to reset your password? Click here to <a href="http://localhost:3000/user/reset/password?id=${token}">Reset</a> your password.<br>If your are not then ignore this email.</p><br><br><span><strong>Note:</strong>This link will be expired in next 10 minutes.</span><br><br><br><h4>Thanks & Regards</h4><span>Team Skill Ascent</span>`
+            html: `<p>Hi ${userMatch.name}, <br><br>Have you requested to reset your password? Click here to <a href="https://www.skillascent.in/user/reset/password?id=${token}">Reset</a> your password.<br>If your are not then ignore this email.</p><br><br><span><strong>Note:</strong>This link will be expired in next 10 minutes.</span><br><br><br><h4>Thanks & Regards</h4><span>Team Skill Ascent</span>`
         });
 
         if (sendEmailStatus) {
