@@ -10,7 +10,7 @@ const getHome = async (req, res) => {
 
         // sending response
         const getLoggedData = await userAuth.userAuth(req, res);
-        if (getLoggedData === undefined) {
+        if (getLoggedData === undefined || getLoggedData === 403) {
             return res.status(200).send({ loggedUser: "undefined" });
         } else {
             res.cookie('satoken', getLoggedData.accessToken, cookiesOption.cookieOption1);
@@ -18,7 +18,6 @@ const getHome = async (req, res) => {
             res.status(200).send({ loggedUser: getLoggedData.loggedUser});
         }
     } catch (error) {
-        console.log(error);
         return res.status(500).send({ message: "Internal server error" });
     }
 }

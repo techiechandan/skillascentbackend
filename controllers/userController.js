@@ -16,6 +16,7 @@ const getRegister = async (req, res) => {
     try {
 
         const getLoggedData = await userAuth.userAuth(req, res);
+    
         if (getLoggedData === undefined) {
             return res.status(200).send({ loggedUser: "undefined" });
         } else {
@@ -34,7 +35,7 @@ const getLogin = async (req, res) => {
     try {
         const getLoggedData = await userAuth.userAuth(req, res);
         if (getLoggedData === undefined) {
-            return res.status(200).send({ loggedUser: "undefined", accessToken:"undefined", refreshToken:"undefined" });
+            return res.status(200).send({ loggedUser: "undefined"});
         } else {
             res.cookie('satoken', getLoggedData.accessToken, cookiesOption.cookieOption1);
             res.cookie('sareftoken', getLoggedData.refreshToken, cookiesOption.cookieOption2);
@@ -54,7 +55,7 @@ const Register = async (req, res) => {
         // checking for existing user with same creadentials
         const userMatch = await users.findOne({ email: req.body.email });
         if (userMatch) {
-            res.status(404).send({ message: "This email has been already used by another user!" });
+            return res.status(404).send({ message: "This email has been already used by another user!" });
         } else {
             // password encription
             const encriptedPassword = await bcrypt.hash(req.body.password, salt);
@@ -76,8 +77,7 @@ const Register = async (req, res) => {
             }
         }
     } catch (error) {
-        res.status(500).send({ message: error.message });
-        console.log(error.message);
+        res.status(500).send({ message: "Internal server error" });
     }
 }
 
@@ -128,8 +128,8 @@ const getLogout = async (req, res) => {
         if (getLoggedData === undefined) {
             return res.status(200).send({ loggedUser: "undefined" });
         } else {
-            res.clearCookie('satoken');
-            res.clearCookie('sareftoken');
+            res.clearCookie('satoken',undefined);
+            res.clearCookie('sareftoken',undefined);
             await tokens.findOneAndRemove({ id: getLoggedData._id });
             res.status(200).send({ loggedUser: "undefined" });
         }
